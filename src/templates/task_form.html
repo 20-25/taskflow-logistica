@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="form-card">
+  <h1>{% if task %}Editar tarefa{% else %}Cadastrar tarefa{% endif %}</h1>
+  <form method="post" class="form-grid">
+    <label class="full">
+      Título
+      <input name="title" required maxlength="120" value="{{ request.form.get('title', task['title'] if task else '') }}">
+    </label>
+    <label class="full">
+      Descrição
+      <textarea name="description" rows="4">{{ request.form.get('description', task['description'] if task else '') }}</textarea>
+    </label>
+    <label>
+      Responsável
+      <input name="responsible" value="{{ request.form.get('responsible', task['responsible'] if task else '') }}">
+    </label>
+    <label>
+      Prazo
+      <input type="date" name="deadline" value="{{ request.form.get('deadline', task['deadline'] if task else '') }}">
+    </label>
+    <label>
+      Status
+      {% set current_status = request.form.get('status', task['status'] if task else 'A_FAZER') %}
+      <select name="status">
+        {% for code, label in statuses.items() %}
+          <option value="{{ code }}" {% if current_status == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Prioridade
+      {% set current_priority = request.form.get('priority', task['priority'] if task else 'media') %}
+      <select name="priority">
+        {% for code, label in priorities.items() %}
+          <option value="{{ code }}" {% if current_priority == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="full actions">
+      <button type="submit" class="button primary">Salvar</button>
+      <a class="button ghost" href="{{ url_for('tasks.index') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

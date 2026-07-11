@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1>Painel de tarefas</h1>
+    <p>Acompanhe o fluxo, os responsáveis, os prazos e as prioridades.</p>
+  </div>
+  <a class="button primary" href="{{ url_for('tasks.create') }}">+ Nova tarefa</a>
+</section>
+
+<section class="metrics">
+  {% for code, label in statuses.items() %}
+    <a class="metric" href="{{ url_for('tasks.index', status=code) }}">
+      <strong>{{ counts.get(code, 0) }}</strong>
+      <span>{{ label }}</span>
+    </a>
+  {% endfor %}
+  <a class="metric critical" href="{{ url_for('tasks.index', priority='critica') }}">
+    <strong>!</strong>
+    <span>Filtrar críticas</span>
+  </a>
+</section>
+
+<form method="get" class="filters">
+  <label>
+    Status
+    <select name="status">
+      <option value="">Todos</option>
+      {% for code, label in statuses.items() %}
+        <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Prioridade
+    <select name="priority">
+      <option value="">Todas</option>
+      {% for code, label in priorities.items() %}
+        <option value="{{ code }}" {% if selected_priority == code %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="button">Aplicar filtros</button>
+  <a class="button ghost" href="{{ url_for('tasks.index') }}">Limpar</a>
+</form>
+
+{% if tasks %}
+  <section class="task-grid">
+    {% for task in tasks %}
+      <article class="task-card priority-{{ task['priority'] }}">
+        <div class="task-top">
+          <span class="badge {{ task['priority'] }}">{{ priorities[task['priority']] }}</span>
+          <span class="status">{{ statuses[task['status']] }}</span>
+        </div>
+        <h2>{{ task['title'] }}</h2>
+        <p>{{ task['description'] or 'Sem descrição.' }}</p>
+        <dl>
+          <div><dt>Responsável</dt><dd>{{ task['responsible'] or 'Não atribuído' }}</dd></div>
+          <div><dt>Prazo</dt><dd>{{ task['deadline'] or 'Não informado' }}</dd></div>
+        </dl>
+        <form method="post" action="{{ url_for('tasks.update_status', task_id=task['id']) }}" class="inline-form">
+          <select name="status" aria-label="Atualizar status">
+            {% for code, label in statuses.items() %}
+              <option value="{{ code }}" {% if task['status'] == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="button small">Atualizar</button>
+        </form>
+        <div class="actions">
+          <a class="button small" href="{{ url_for('tasks.edit', task_id=task['id']) }}">Editar</a>
+          <form method="post" action="{{ url_for('tasks.delete', task_id=task['id']) }}" onsubmit="return confirm('Excluir esta tarefa?');">
+            <button class="button small danger">Excluir</button>
+          </form>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <section class="empty-state">
+    <h2>Nenhuma tarefa encontrada</h2>
+    <p>Cadastre uma tarefa ou remova os filtros aplicados.</p>
+  </section>
+{% endif %}
+{% endblock %}

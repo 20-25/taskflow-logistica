@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TaskFlow Logística{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <a class="brand" href="{{ url_for('tasks.index') }}">TaskFlow Logística</a>
+      <span class="subtitle">Gestão ágil de tarefas</span>
+    </div>
+    {% if session.get('authenticated') %}
+      <nav>
+        <span>Olá, {{ session.get('username') }}</span>
+        <a href="{{ url_for('auth.logout') }}">Sair</a>
+      </nav>
+    {% endif %}
+  </header>
+
+  <main class="container">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    Projeto acadêmico de Engenharia de Software — UniFECAF, 2026.
+  </footer>
+</body>
+</html>
